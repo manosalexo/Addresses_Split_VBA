@@ -1,0 +1,58 @@
+Sub Extract_addresses()
+    Dim sh As Worksheet, wCell As Range, rng As Range
+    Dim wWords As Variant, wPal As String, cad As String
+    Dim w As Double, k As Double, num As Boolean
+    
+    Set sh = Sheets("addresses_split")
+    Set rng = sh.Range("A2", sh.Range("A" & Rows.Count).End(xlUp))
+    
+    For Each wCell In rng
+        num = False
+        cad = ""
+        wWords = Split(wCell, " ")
+        For w = LBound(wWords) To UBound(wWords)
+            wPal = wWords(w)
+        
+            If IsNumeric(wPal) Then
+                'first number
+                num = True
+                cad = cad & wPal & " "
+            Else
+                If cad = "" Then
+                    'first word
+                    cad = cad & wPal & " "
+                Else
+                    'first number with letter
+                    For k = 1 To Len(wPal)
+                        If Mid(wPal, k, 1) Like "[0-9]" Then
+                            cad = cad & wPal & " "
+                            num = True
+                            Exit For
+                        End If
+                    Next
+
+
+                    If num = True Then
+                        'next single letter
+                        If Len(wPal) = 1 Then
+                            cad = cad & wPal & " "
+                        End If
+                        Exit For
+                    Else
+                        'word without number
+                        cad = cad & wPal & " "
+                    End If
+                End If
+            End If
+        Next
+        cad = WorksheetFunction.Trim(cad)
+        wCell.Offset(0, 1) = cad
+        cad = Mid(wCell, Len(cad) + 2)
+        wCell.Offset(0, 2) = cad
+    Next
+    
+    MsgBox "End"
+    
+End Sub
+
+
